@@ -1,4 +1,4 @@
-package com.example.dell.myapplication;
+package com.example.dell.myapplication.manager;
 
 import android.os.Handler;
 import android.os.Looper;

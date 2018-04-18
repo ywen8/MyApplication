@@ -1,18 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.activity.MainActivity">
+    <RelativeLayout
+        android:id="@+id/act_login_content_real"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/login_top"
+        android:scaleType="fitXY"
+        android:src="@mipmap/login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/act_login_edit_line"
+        android:layout_marginTop="-20dp"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_below="@+id/login_top"
+        android:background="@drawable/line_bg"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:paddingLeft="@dimen/dp_20"
+            android:paddingRight="@dimen/dp_20"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_18"
+                android:text="@string/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/act_login_username_edit"
+                android:digits="@string/ditigs"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:background="@null"
+                android:hint="@string/input_username"
+                android:layout_marginLeft="@dimen/dp_30"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_marginLeft="@dimen/dp_10"
+                android:visibility="invisible"
+                android:src="@mipmap/eye"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+          android:layout_marginLeft="@dimen/dp_20"
+            android:layout_marginRight="@dimen/dp_20"
+            android:background="@color/view_bg"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"/>
+        <LinearLayout
+            android:paddingLeft="@dimen/dp_20"
+            android:paddingRight="@dimen/dp_20"
+            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_18"
+                android:text="@string/password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-</android.support.constraint.ConstraintLayout>
+            <EditText
+                android:id="@+id/act_login_passwrod_edit"
+                android:digits="@string/ditigs"
+                android:inputType="textPassword"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:background="@null"
+                android:hint="@string/input_password"
+                android:layout_marginLeft="@dimen/dp_30"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/act_login_password_img_eye"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:src="@mipmap/eye"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+    <Button
+        android:id="@+id/act_login_on"
+        android:layout_below="@+id/act_login_edit_line"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginRight="@dimen/dp_30"
+        android:background="@drawable/login_bg"
+        android:layout_marginTop="@dimen/dp_30"
+        android:text="@string/login"
+        android:textColor="@android:color/white"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:textSize="@dimen/sp_18"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/act_login_progress_line"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

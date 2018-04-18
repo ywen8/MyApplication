@@ -1,4 +1,5 @@
-package com.example.dell.myapplication;
+package com.example.dell.myapplication.utils;
+
 
 import rx.Observable;
 import rx.subjects.PublishSubject;

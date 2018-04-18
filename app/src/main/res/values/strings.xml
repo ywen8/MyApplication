@@ -7,6 +7,11 @@
 
     <string name="tip_account">用户名</string>
     <string name="tip_password">密码</string>
+    <string name="username">帐号</string>
+    <string name="password">密码</string>
+    <string name="input_username">请输入帐号</string>
+    <string name="input_password">请输入密码</string>
+    <string name="login">登录</string>
 
     <string name="tip_hit_account">用户名为 4 ~ 24 个字符，不能为纯数字</string>
     <string name="tip_hit_password">密码长度为 8 ~ 16 个字符</string>
@@ -42,4 +47,5 @@
     <string name="log">日志</string>
     <string name="invite_tip">输入邀请用户id</string>
     <string name="cancel">取消</string>
+    <string name="ditigs">0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
 </resources>

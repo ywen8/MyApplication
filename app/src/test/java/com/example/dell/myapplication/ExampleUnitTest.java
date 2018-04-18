@@ -1,5 +1,7 @@
 package com.example.dell.myapplication;
 
+import com.tencent.ilivesdk.view.AVRootView;
+
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -22,11 +24,7 @@ public class ExampleUnitTest {
    @Test
     public void test(){
         try {
-            Class c=MyTest.class;
-            MyTest myTest= (MyTest) c.newInstance();
-           Method method=c.getDeclaredMethod("str",String.class);
-           method.setAccessible(true);
-           method.invoke(myTest,"strr---");
+            Class   av=AVRootView.class;
 
 
         } catch (Exception e) {
