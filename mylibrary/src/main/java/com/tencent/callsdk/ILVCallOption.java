@@ -10,8 +10,8 @@ public class ILVCallOption
     private String mCallTips = "New Call";
     private String mCustomParam;
     private ILVBCallMemberListener mMemberListener;
-    private long iHearBeatInterval = 10L;
-    private boolean bOnlineCall = false;
+    private long iHearBeatInterval = 1L;
+    private boolean bOnlineCall = true;
 
     public ILVCallOption(String hostId)
     {

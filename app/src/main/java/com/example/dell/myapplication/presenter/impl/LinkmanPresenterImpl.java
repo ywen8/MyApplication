@@ -1,8 +1,10 @@
 package com.example.dell.myapplication.presenter.impl;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.dell.myapplication.application.MyApplication;
 import com.example.dell.myapplication.presenter.LinkmanPresenter;
 import com.example.dell.myapplication.ui.view.LinkmanView;
 import com.tencent.ilivesdk.ILiveCallBack;
@@ -20,11 +22,13 @@ public class LinkmanPresenterImpl extends BasePresenterImpl implements LinkmanPr
     @Override
     public void loginout() {
         linkmanView.showProgress();
-        Log.i("dddddddddddddd",ILiveLoginManager.getInstance().isLogin()+"");
         ILiveLoginManager.getInstance().iLiveLogout(new ILiveCallBack() {
             @Override
             public void onSuccess(Object data) {
-                Log.i("dddddddddddddd",ILiveLoginManager.getInstance().isLogin()+"");
+                SharedPreferences sharedPreferences= MyApplication.getPreferences();
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean("login",false);
+                editor.commit();
                 linkmanView.hideProgress();
                 linkmanView.toLogin();
             }

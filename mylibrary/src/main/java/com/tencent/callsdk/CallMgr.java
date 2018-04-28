@@ -62,6 +62,8 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
     private ILiveRoomOption.onRoomDisconnectListener mAppDisconnectListener = null;    // 备份用户设置的diconnect回调
     private boolean bInviteSelf = false;
     private HashMap<String, ILVCallNotification> overMap = new HashMap<>();       // 用于缓存已结束的会话
+    private int order = 0;
+
 
     // 内部通话状态
     private enum CallStatus {
@@ -257,21 +259,20 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
 
     // 退出AV房间
     private void quitAVRoom(final int roomId, final int reason, final String message) {
-        ILiveRoomManager.getInstance().quitRoom(new ILiveCallBack() {
-            @Override
-            public void onSuccess(Object data) {
-                changeStatus(CallStatus.eCallIdle);
-                notifyCallEnd(roomId, reason, message);
-                curInfo.reset();
-            }
+            ILiveRoomManager.getInstance().quitRoom(new ILiveCallBack() {
+                @Override
+                public void onSuccess(Object data) {
+                    changeStatus(CallStatus.eCallIdle);
+                    notifyCallEnd( roomId, reason, message);
+                    curInfo.reset();
+                }
 
-            @Override
-            public void onError(String module, int errCode, String errMsg) {
-                ILiveLog.ke(TAG, "quitAVRoom", module, errCode, errMsg);
-                changeStatus(CallStatus.eCallIdle);
-                notifyCallEnd(roomId, reason, message);
-            }
-        });
+                @Override
+                public void onError(String module, int errCode, String errMsg) {
+                    changeStatus(CallStatus.eCallIdle);
+                    notifyCallEnd(roomId, reason, message);
+                }
+            });
     }
 
     // 生成UUID
@@ -352,10 +353,10 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
         return msg;
     }
 
-    private String getProtoString(String strMsg){
-        if (null != mConfig && mConfig.isPbProto()){
+    private String getProtoString(String strMsg) {
+        if (null != mConfig && mConfig.isPbProto()) {
             return ILiveFunc.byte2HexStr(strMsg.getBytes());
-        }else{
+        } else {
             return strMsg;
         }
     }
@@ -431,7 +432,7 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
     /**
      * 处理来电消息
      */
-    private void processIncoming(int roomId, CallMsg callMsg){
+    private void processIncoming(int roomId, CallMsg callMsg) {
         if (!TextUtils.isEmpty(callMsg.getUuid()) && overMap.containsKey(callMsg.getUuid())) {
             ILiveLog.kw(TAG, "processIncoming->ignore", new ILiveLog.LogExts().put("callId", roomId).put("uuid", callMsg.getUuid()));
             return;
@@ -505,12 +506,12 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
      */
     public void processCallEnd(int callId, ILVCallNotification notification, int errCode) throws JSONException {
         if (ILiveRoomManager.getInstance().getRoomId() == callId) {
-            Log.i("--------------",notification.toString()+"-----------");
             // 先通知用户离开
             updateMember(notification.getSender(), false, false);
             removeMember(notification.getSender());
             if (0 == curInfo.getMemberMap().size()) {   // 该通话已没有其它成员了
-                endCallEx(callId, errCode, "Remote cancel");
+                endCallEx(callId, errCode, order+"");
+                order=0;
             } else {
                 String users = null;
                 for (Map.Entry<String, ILVCallMemberInfo> entry : curInfo.getMemberMap().entrySet()) {
@@ -648,7 +649,7 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
 
         if (config.isPbProto()) {
             protoEngine = new PbCallProto();
-        }else{
+        } else {
             protoEngine = new JsonCallProto();
         }
         clearCallInfo();
@@ -922,6 +923,7 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
 
     @Override
     public int rejectCall(int callId) {
+
         ILiveLog.ki(TAG, "rejectCall", new ILiveLog.LogExts().put("callId", callId));
         final IncomingInfo info = mIncomingMap.get(callId);
         if (null == info) {
@@ -949,7 +951,7 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
 
     @Override
     public int responseLineBusy(int callId) {
-        ILiveLog.ki(TAG, "responseLineBusy", new ILiveLog.LogExts().put("callId", callId));
+
         final IncomingInfo info = mIncomingMap.get(callId);
         if (null == info) {
             ILiveLog.kw(TAG, "responseLineBusy->not-found", new ILiveLog.LogExts().put("callId", callId));
@@ -1198,7 +1200,7 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
     @Override
     public boolean notifyMessage(String strMsg, String senderId, long timeStamp) {
         CallMsg callMsg = protoEngine.parseData(strMsg.getBytes(), senderId);
-        if (mConfig.isServerTimeStamp()){
+        if (mConfig.isServerTimeStamp()) {
             callMsg.setTimeStamp(timeStamp);
         }
         return notifyMessage(callMsg);
@@ -1206,11 +1208,20 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
 
     @Override
     public boolean notifyMessage(CallMsg msg) {
-        try {
-            ILiveLog.di(TAG, "notifyMessage", new ILiveLog.LogExts().put("cmd", "0x" + Integer.toHexString(msg.getNotifId()))
-                    .put("sender", msg.getSender()));
 
+
+        Log.i("-----notify----",  msg.getNotifId() + "------------" + msg.getCallId() + "-----" + msg.getSender());
+        try {
+//            ILiveLog.di(TAG, "notifyMessage", new ILiveLog.LogExts().put("cmd", "0x" + Integer.toHexString(msg.getNotifId()))
+//                    .put("sender", msg.getSender()));
+//            Log.i("-----notify----",  msg.getNotifId() + "------------" + msg.getCallId() + "-----" + msg.getSender()+"-------"+msg.getSender());
             switch (msg.getNotifId()) {
+                case 2000:
+                    callBack.reject();
+                    break;
+                case 2001:
+                    callBack.accpt();
+                    break;
                 case ILVCallConstants.TCILiveCMD_Inviting:
                 case ILVCallConstants.TCILiveCMD_Dialing:       //  新来电
                     processIncoming(msg.getCallId(), msg);
@@ -1417,4 +1428,5 @@ public class CallMgr extends ILVCallManager implements TIMMessageListener, ILive
             mAppDisconnectListener.onRoomDisconnect(errCode, errMsg);
         }
     }
+
 }

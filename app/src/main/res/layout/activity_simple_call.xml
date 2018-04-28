@@ -33,6 +33,7 @@
             android:layout_height="wrap_content">
             <Button
                 android:id="@+id/btn_camera"
+                android:visibility="gone"
                 android:onClick="onClick"
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/colorWhite"
@@ -116,23 +117,22 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <Button
+                <ImageView
+                    android:layout_marginLeft="@dimen/dp_30"
+                    android:layout_marginRight="@dimen/dp_30"
+                    android:layout_weight="1"
                     android:id="@+id/btn_accp"
-                    android:visibility="gone"
-                    android:onClick="onClick"
-                    android:textColor="@color/colorWhite"
-                    android:text="@string/tip_end_call_accp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Button
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:src="@mipmap/consent"
+                    android:layout_width="@dimen/dp_120"
+                    android:layout_height="match_parent" />
+                <ImageView
+                    android:layout_marginLeft="@dimen/dp_30"
+                    android:layout_marginRight="@dimen/dp_30"
+                    android:layout_weight="1"
                     android:id="@+id/btn_end"
-                    android:visibility="gone"
-                    android:onClick="onClick"
-                    android:textColor="@color/colorWhite"
-                    android:text="@string/tip_end_call"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:src="@mipmap/surtdown"
+                    android:layout_width="@dimen/dp_120"
+                    android:layout_height="match_parent" />
             </LinearLayout>
         </RelativeLayout>
     </RelativeLayout>

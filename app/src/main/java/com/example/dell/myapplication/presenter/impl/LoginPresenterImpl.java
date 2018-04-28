@@ -26,7 +26,11 @@ public class LoginPresenterImpl extends BasePresenterImpl implements LoginPresen
         SharedPreferences sharedPreferences=MyApplication.getPreferences();
         String username=sharedPreferences.getString("username","");
         String password=sharedPreferences.getString("password","");
+        boolean isLogin=sharedPreferences.getBoolean("login",false);
         loginView.setUserNameWithPassWord(username,password);
+        if(isLogin){
+            login();
+        }
     }
 
     @Override
@@ -40,11 +44,17 @@ public class LoginPresenterImpl extends BasePresenterImpl implements LoginPresen
             return;
         }
         loginView.showProgress();
-        SharedPreferences.Editor editor=MyApplication.getPreferences().edit();
-        editor.putString("username",loginView.getUserName());
-        editor.putString("password",loginView.getPassWord());
-        editor.commit();
-        loginView.tostart();
+        ILiveLoginManager.getInstance().tlsLogin(loginView.getUserName(), loginView.getPassWord(), new ILiveCallBack<String>() {
+            @Override
+            public void onSuccess(String data) {
+                loginSDK(loginView.getUserName(), data);
+
+            }
+            @Override
+            public void onError(String module, int errCode, String errMsg) {
+                loginView.hideProgress();
+            }
+        });
 
     }
 
@@ -53,8 +63,12 @@ public class LoginPresenterImpl extends BasePresenterImpl implements LoginPresen
             @Override
             public void onSuccess(Object data) {
                 loginView.hideProgress();
-
                 Toast.makeText(mContext, "Login Success:", Toast.LENGTH_SHORT).show();
+                SharedPreferences.Editor editor=MyApplication.getPreferences().edit();
+                editor.putString("username",loginView.getUserName());
+                editor.putString("password",loginView.getPassWord());
+                editor.putBoolean("login",true);
+                editor.commit();
                 loginView.toMain();
             }
 

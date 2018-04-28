@@ -11,6 +11,7 @@ public abstract class ILVCallManager
     protected ILVCallConfig mConfig = null;
     protected String version = "1.0.27";
 
+    public CallBack callBack;
     private static class ILVBCallHolder
     {
         private static ILVCallManager instance = new CallMgr();
@@ -19,6 +20,10 @@ public abstract class ILVCallManager
     public static ILVCallManager getInstance()
     {
         return ILVBCallHolder.instance;
+    }
+
+    public void setCallBack(CallBack callBack) {
+        this.callBack = callBack;
     }
 
     public abstract int init(ILVCallConfig paramILVCallConfig);
@@ -101,4 +106,10 @@ public abstract class ILVCallManager
     public abstract String getSponsorId();
 
     public abstract List<ILVCallMemberInfo> getMembers();
+
+    public interface  CallBack{
+
+        void accpt();
+        void reject();
+    }
 }

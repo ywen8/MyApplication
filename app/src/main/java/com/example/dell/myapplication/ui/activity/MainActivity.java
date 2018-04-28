@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements LoginView {
         }
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        loginStatus();
         presenter=new LoginPresenterImpl(this,this);
         presenter.onCreate();
     }
@@ -130,21 +129,4 @@ public class MainActivity extends AppCompatActivity implements LoginView {
         Intent intent=new Intent(this, CallService.class);
         startService(intent);
     }
-
-    private void loginStatus(){
-        RxBus.getInstance().toObserverable(LoginStatus.class).subscribe(new Action1<LoginStatus>() {
-            @Override
-            public void call(LoginStatus loginStatus) {
-                if(loginStatus instanceof LoginStatus){
-                    if(loginStatus.status==1){
-                        Toast.makeText(MainActivity.this, "Login Success:", Toast.LENGTH_SHORT).show();
-                        toMain();
-                    }else{
-                        Toast.makeText(MainActivity.this, "Login failed:", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-    }
-
 }

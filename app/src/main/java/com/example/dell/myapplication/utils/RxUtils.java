@@ -27,4 +27,15 @@ public class RxUtils {
 
         return subscription;
     }
+
+    private static long lastClickTime;
+    public static boolean isFastClick() {
+        long time = System.currentTimeMillis();
+        long timeD = time - lastClickTime;
+        if ( timeD > 0 && timeD < 500) {
+            return true;
+        }
+        lastClickTime = time;
+        return false;
+    }
 }

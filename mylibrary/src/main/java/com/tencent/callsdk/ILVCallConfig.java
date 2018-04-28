@@ -7,7 +7,7 @@ public class ILVCallConfig
         extends ILiveRoomConfig<ILVCallConfig>
 {
     private messageHandle mMsgPipe = null;
-    private long mTimeout = 30000L;
+    private long mTimeout = 10000L;
     private boolean bAutoBusy = true;
     private boolean bServerTimeStamp = true;
     private boolean bMemberStatusFix = true;

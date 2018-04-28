@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.dell.myapplication.R;
 import com.example.dell.myapplication.application.MyApplication;
+import com.example.dell.myapplication.broadcast.LockScreenLintener;
 import com.example.dell.myapplication.entity.Events;
 import com.example.dell.myapplication.entity.MediaMessage;
 import com.example.dell.myapplication.presenter.LinkmanPresenter;
@@ -76,12 +77,8 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
         initRxBus();
         stopMedia();
         presenter = new LinkmanPresenterImpl(this, this);
-        Notification notification=new Notification();
-
-//        if (!isServiceRunning(this, CallService.class.getName())) {
-//            serviceIntent = new Intent(this, CallService.class);
-//            startService(serviceIntent);
-//        }
+        serviceIntent = new Intent(this, CallService.class);
+        startService(serviceIntent);
     }
 
     @OnClick(R.id.act_linkman_loginout)
@@ -111,10 +108,12 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
             @Override
             public void call(final Events events) {
                 if (events instanceof Events) {
+
                     sendNotification();
                     setEvents(events);
                     mCurIncomingId = events.callId;
-                    playSoundByMedia(R.raw.stone);
+                    if (mediaPlayer == null)
+                        playSoundByMedia(R.raw.stone);
                     showCall();
                     isShowCall = true;
                 }
@@ -164,7 +163,6 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
         home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         home.addCategory(Intent.CATEGORY_HOME);
         startActivity(home);
-
     }
 
     @Override
@@ -180,6 +178,10 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
 
     @Override
     protected void onDestroy() {
+        stopService(serviceIntent);
+        stop();
+        ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        manager.killBackgroundProcesses(getPackageName());
         mSubscription.unsubscribe();
         super.onDestroy();
     }
@@ -215,7 +217,6 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
 
     @Override
     public void toLogin() {
-//        stopService(serviceIntent);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
@@ -271,6 +272,7 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
                     @Override
                     public void call(MediaMessage events) {
                         if (events instanceof MediaMessage) {
+                            Log.e("QQQQQQQQQQQQQQQQ","--------------停止播放----------");
                             stop();
                             hideCall();
                         }
@@ -295,18 +297,16 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
                 .setContentTitle("")
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 //设置通知内容
-                .setContentText("你有视频消息了！").setVibrate(vibrate)
-                .setSound(Uri.parse("android.resource://" + getPackageName() + "/" +R.raw.weixin))
+                .setContentText("正在运行").setVibrate(vibrate)
+                .setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.weixin))
                 .setContentIntent(mainPendingIntent).setAutoCancel(true);
-        //设置通知时间，默认为系统发出通知的时间，通常不用设置
-        //.setWhen(System.currentTimeMillis());
-        //通过builder.build()方法生成Notification对象,并发送通知,id=1
         Notification notification = builder.build();
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
         notification.ledARGB = 0xff0000f;//Led颜色
         notification.ledOnMS = 300;//led亮的时间
-        notification.ledOffMS = 300;;//led灭的时间
-        notifyManager.notify(1, builder.build());
+        notification.ledOffMS = 300;
+        ;//led灭的时间
+        notifyManager.notify(1, notification);
     }
 
     private void stop() {
@@ -314,29 +314,6 @@ public class LinkmanActivity extends AppCompatActivity implements LinkmanView {
             mediaPlayer.stop();
             mediaPlayer = null;
         }
-    }
-
-    public boolean isServiceRunning(Context mContext, String className) {
-
-        boolean isRunning = false;
-        ActivityManager activityManager = (ActivityManager) mContext
-                .getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.RunningServiceInfo> serviceList = activityManager
-                    .getRunningServices(30);
-
-            if (!(serviceList.size() > 0)) {
-                return false;
-            }
-            Log.e("OnlineService：", className);
-            for (int i = 0; i < serviceList.size(); i++) {
-                Log.e("serviceName：", serviceList.get(i).service.getClassName());
-                if (serviceList.get(i).service.getClassName().contains(className) == true) {
-                    isRunning = true;
-                    break;
-                }
-            }
-
-        return isRunning;
     }
 }
 

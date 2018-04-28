@@ -200,7 +200,7 @@ public class ContactActivity extends Activity implements View.OnClickListener, I
 //        ILVCallManager.getInstance().addCallListener(this);
 //        ILVCallManager.getInstance().setCallBack(this);
 //        addLogMessage("Init CallSDK...");
-//        login("aaa321321","12345678");
+        login("aaa321321","12345678");
 //        initRxBus();
         Intent intent = new Intent(this, CallService.class);
         startService(intent);

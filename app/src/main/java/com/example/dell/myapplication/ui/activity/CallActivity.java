@@ -2,15 +2,19 @@ package com.example.dell.myapplication.ui.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -43,13 +47,14 @@ import java.util.List;
 /**
  * 通话界面
  */
-public class CallActivity extends Activity implements ILVCallListener, ILVBCallMemberListener, View.OnClickListener {
-    private Button btnEndCall, btnCamera, btnMic, btnSpeaker, btn_accpCall;
+public class CallActivity extends Activity implements ILVCallListener, ILVBCallMemberListener, View.OnClickListener,AVRootView.onSubViewCreatedListener,AVRootView.onSurfaceCreatedListener {
+    private Button  btnCamera, btnMic, btnSpeaker;
     private AVRootView avRootView;
     private TextView tvTitle, tvLog;
     private RelativeLayout rlControl;
     private LinearLayout llBeauty;
     private SeekBar sbBeauty;
+    private ImageView btnEndCall,btn_accpCall;
 
     private String mHostId;
     private int mCallId;
@@ -60,10 +65,16 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
     private boolean bMicEnalbe = true;
     private boolean bSpeaker = true;
     private int mCurCameraId = ILiveConstants.FRONT_CAMERA;
+    private int width;
+    private int height;
 
     private void initView() {
         avRootView = (AVRootView) findViewById(R.id.av_root_view);
-        btnEndCall = (Button) findViewById(R.id.btn_end);
+//        avRootView.setSubHeight(height);
+//        avRootView.setSubWidth(width);
+//        avRootView.setSubMarginX(0);
+//        avRootView.setSubMarginY(0);
+        btnEndCall =findViewById(R.id.btn_end);
         btnSpeaker = (Button) findViewById(R.id.btn_speaker);
         tvTitle = (TextView) findViewById(R.id.tv_call_title);
         btn_accpCall = findViewById(R.id.btn_accp);
@@ -77,6 +88,8 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
 
         btnEndCall.setVisibility(View.VISIBLE);
         btn_accpCall.setVisibility(View.VISIBLE);
+        btn_accpCall.setOnClickListener(this);
+        btnEndCall.setOnClickListener(this);
     }
 
     private void changeCamera() {
@@ -86,8 +99,6 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
         } else {
             ILVCallManager.getInstance().enableCamera(mCurCameraId, true);
         }
-//        bCameraEnable = !bCameraEnable;
-//        btnCamera.setText(bCameraEnable ? R.string.tip_close_camera : R.string.tip_open_camera);
     }
 
     private void changeMic() {
@@ -179,9 +190,12 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowManager wm = (WindowManager) this
+                .getSystemService(Context.WINDOW_SERVICE);
+        width = wm.getDefaultDisplay().getWidth();
+        height = wm.getDefaultDisplay().getHeight();
         setContentView(R.layout.activity_simple_call);
         initView();
-
         // 添加通话回调
         ILVCallManager.getInstance().addCallListener(this);
 
@@ -213,6 +227,8 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
         });
 
         ILVCallManager.getInstance().initAvView(avRootView);
+        avRootView.setSubCreatedListener(this);
+        avRootView.setSurfaceCreateListener(this);
 
     }
 
@@ -243,8 +259,6 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
 
     @Override
     public void onClick(View v) {
-        Method method = null;
-        String accID = "";
         // library中不能使用switch索引资源id
         if (ilvCallNotification == null) {
             ilvCallNotification = new ILVCallNotification();
@@ -253,14 +267,10 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
         if (v.getId() == R.id.btn_end) {
             ilvCallNotification.setNotifId(2000);
             ILVCallManager.getInstance().postNotification(mCallId, ilvCallNotification);
-//            ILVCallManager.getInstance().endCall(mCallId);
-//            Log.i("gggggggg","------"+mCallId+"---------");
             finish();
         } else if (v.getId() == R.id.btn_accp) {
             ilvCallNotification.setNotifId(2001);
             ILVCallManager.getInstance().postNotification(mCallId, ilvCallNotification);
-//            Log.i("gggggggg","------"+mCallId+"---------");
-//            ILVCallManager.getInstance().endCall(mCallId);
             finish();
         } else if (v.getId() == R.id.btn_camera) {
             changeCamera();
@@ -294,10 +304,8 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
      */
     @Override
     public void onCallEstablish(int callId) {
-        btnEndCall.setVisibility(View.VISIBLE);
-//        avRootView.swapVideoView(0, 1);
-        changeCamera();
-//         设置点击小屏切换及可拖动
+        avRootView.swapVideoView(0, 1);
+        // 设置点击小屏切换及可拖动
         for (int i = 1; i < ILiveConstants.MAX_AV_VIDEO_NUM; i++) {
             final int index = i;
             AVVideoView minorView = avRootView.getViewByIndex(i);
@@ -305,7 +313,6 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
                 minorView.setMirror(true);      // 本地镜像
             }
             minorView.setDragable(true);    // 小屏可拖动
-            minorView.setVisibility(GLView.INVISIBLE);
             minorView.setGestureListener(new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -314,6 +321,7 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
                 }
             });
         }
+//        changeCamera();
     }
 
     /**
@@ -341,5 +349,15 @@ public class CallActivity extends Activity implements ILVCallListener, ILVBCallM
     @Override
     public void onMicEvent(String id, boolean bEnable) {
         addLogMessage("[" + id + "] " + (bEnable ? "open" : "close") + " mic");
+    }
+
+    @Override
+    public void onSubViewCreated() {
+        Log.e("qqqqqqqqqqqqqqqqqqqqq","-------------视图已经准备完毕-------------");
+    }
+
+    @Override
+    public void onSurfaceCreated() {
+        Log.e("qqqqqqqqqqqqqqqqqqqqq","-------------SurfaceView已经准备完毕-------------");
     }
 }
